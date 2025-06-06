@@ -1,119 +1,208 @@
 import 'package:flutter/material.dart';
-import 'client_dropdown.dart';
-import 'main.dart'; // Optional: only if MyHomePage is here
+
+void main() {
+  runApp(const DrivingSchoolApp());
+}
+
+class DrivingSchoolApp extends StatelessWidget {
+  const DrivingSchoolApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Driving School Slot Booking',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+          accentColor: Colors.blueAccent,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E88E5),
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E88E5),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+      home: const LoginPage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String? _selectedSchool;
 
-  String selectedClient = '-- select --';
+  // List of driving schools (you can expand this)
+  final List<String> _drivingSchools = [
+    'City Driving School - Downtown',
+    'Safe Wheels Academy - North Branch',
+    'Pro Drivers Institute - East Branch',
+    'Elite Driving School - West Branch',
+    'First Gear Academy - South Branch',
+  ];
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      // Here you would typically call your authentication service
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Login...')),
+      );
+      
+      // Navigate to the main app after successful login
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE3F2FD),
-      body: Container(
-        // decoration: const BoxDecoration(
-        //   gradient: LinearGradient(
-        //     colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7)], // Light teal gradient
-        //     begin: Alignment.topLeft,
-        //     end: Alignment.bottomRight,
-        //   ),
-        // ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Login to Book Slot',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Colors.teal[800],
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      SizedBox(height: 30),
-
-                      // Client Dropdown
-                      ClientDropdown(
-                        selectedClient: selectedClient,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedClient = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 20),
-
-                      // Email
-                      TextFormField(
-                        controller: emailController,
-                        decoration: InputDecoration(labelText: "Email"),
-                        validator: (value) =>
-                            value!.trim().isEmpty ? 'Email is required' : null,
-                      ),
-                      SizedBox(height: 20),
-
-                      // Password
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(labelText: "Password"),
-                        validator: (value) =>
-                            value!.trim().isEmpty ? 'Password is required' : null,
-                      ),
-                      SizedBox(height: 30),
-
-                      // Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate() &&
-                                selectedClient != '-- select --') {
-                              // Success
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Login Successful")),
-                              );
-
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      MyHomePage(title: 'Welcome'),
-                                ),
-                              );
-                            } else if (selectedClient == '-- select --') {
-                              // Dropdown not selected
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Please select a branch")),
-                              );
-                            }
-                          },
-                          child: Text("Login"),
-                        ),
-                      ),
-                    ],
-                  ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 80),
+              // Logo or App Icon
+              const Icon(
+                Icons.directions_car,
+                size: 100,
+                color: Color(0xFF1E88E5),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Driving School\nSlot Booking',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E88E5),
                 ),
               ),
+              const SizedBox(height: 40),
+              // Login Form
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // School Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Select Driving School',
+                        prefixIcon: Icon(Icons.school),
+                      ),
+                      value: _selectedSchool,
+                      items: _drivingSchools.map((String school) {
+                        return DropdownMenuItem<String>(
+                          value: school,
+                          child: Text(school),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedSchool = newValue;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a driving school';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // Email Field
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: Icon(Icons.email),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // Password Field
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    // Login Button
+                    ElevatedButton(
+                      onPressed: _login,
+                      child: const Text(
+                        'LOGIN',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Forgot Password Link
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to password reset screen
+                      },
+                      child: const Text('Forgot Password?'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
