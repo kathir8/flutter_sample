@@ -1,78 +1,201 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const DrivingSchoolApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DrivingSchoolApp extends StatelessWidget {
+  const DrivingSchoolApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Driving School Slot Booking',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+          accentColor: Colors.blueAccent,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E88E5),
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E88E5),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
-      home: LoginPage(),
+      home: const LoginPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String? _selectedSchool;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  final List<String> _drivingSchools = [
+    'City Driving School - Downtown',
+    'Safe Wheels Academy - North Branch',
+    'Pro Drivers Institute - East Branch',
+    'Elite Driving School - West Branch',
+    'First Gear Academy - South Branch',
+  ];
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _login() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Login...')),
+      );
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 80),
+              const Icon(
+                Icons.directions_car,
+                size: 100,
+                color: Color(0xFF1E88E5),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Driving School\nSlot Booking',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E88E5),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: 'Select Driving School',
+                        prefixIcon: Icon(Icons.school),
+                      ),
+                      value: _selectedSchool,
+                      items: _drivingSchools.map((String school) {
+                        return DropdownMenuItem<String>(
+                          value: school,
+                          child: Text(school),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedSchool = newValue;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a driving school';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: Icon(Icons.email),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    // Updated button with full width
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _login,
+                        child: const Text(
+                          'LOGIN',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text('Forgot Password?'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            ElevatedButton(onPressed: () {}, child: const Text('Enabled')),
-          ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
