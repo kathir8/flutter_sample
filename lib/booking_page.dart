@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'login.dart';
+import 'models/date_format_utils.dart';
+import 'search_page.dart';
+import 'models/booking_slot.dart';
 
+// Main booking screen widget for a selected driving school
 class MainBookingPage extends StatefulWidget {
   final String selectedSchool;
   final String userEmail;
@@ -25,29 +29,34 @@ class _MainBookingPageState extends State<MainBookingPage> {
   void initState() {
     super.initState();
     // Initialize with some sample data
-    _bookings[DateFormat('yyyy-MM-dd').format(DateTime.now())] = [
+    _bookings[formatDate(DateTime.now(), DateFormatType.iso)] = [
       BookingSlot(time: '10:00 AM', name: 'John Doe', phone: '1234567890'),
       BookingSlot(time: '11:30 AM', name: 'Jane Smith', phone: '9876543210'),
+      BookingSlot(time: '12:30 PM', name: 'Mike Johnson', phone: '5551234567'),
     ];
-    _bookings[DateFormat(
-      'yyyy-MM-dd',
-    ).format(DateTime.now().add(const Duration(days: 1)))] = [
+    _bookings[formatDate(
+      DateTime.now().add(const Duration(days: 1)),
+      DateFormatType.iso,
+    )] = [
       BookingSlot(time: '10:00 AM', name: 'Mike Johnson', phone: '5551234567'),
     ];
-    _bookings[DateFormat(
-      'yyyy-MM-dd',
-    ).format(DateTime.now().subtract(const Duration(days: 1)))] = [
-      BookingSlot(time: '10:00 AM', name: 'Mike Johnson', phone: '5551234567'),
+    _bookings[formatDate(
+      DateTime.now().subtract(const Duration(days: 1)),
+      DateFormatType.iso,
+    )] = [
+      BookingSlot(time: '11:00 AM', name: 'Mike Johnson', phone: '5551234567'),
     ];
   }
 
   @override
   void dispose() {
+    // Clean up the controllers when the widget is disposed
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
+  // Opens a date picker dialog to select a date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -62,12 +71,14 @@ class _MainBookingPageState extends State<MainBookingPage> {
     }
   }
 
+  // Navigates forward or backward by the given number of days
   void _navigateDate(int days) {
     setState(() {
       _selectedDate = _selectedDate.add(Duration(days: days));
     });
   }
 
+  // Handles booking a time slot
   void _bookSlot(String time) {
     showDialog(
       context: context,
@@ -94,12 +105,11 @@ class _MainBookingPageState extends State<MainBookingPage> {
           ),
           ElevatedButton(
             onPressed: () {
+              // Validate input and save the booking
               if (_nameController.text.isNotEmpty &&
                   _phoneController.text.isNotEmpty) {
                 setState(() {
-                  final dateKey = DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(_selectedDate);
+                  final dateKey = formatDate(_selectedDate, DateFormatType.iso);
                   _bookings.putIfAbsent(dateKey, () => []);
                   _bookings[dateKey]!.add(
                     BookingSlot(
@@ -124,6 +134,7 @@ class _MainBookingPageState extends State<MainBookingPage> {
     );
   }
 
+  // Displays a dialog showing details of a booked slot
   void _viewBookingDetails(BookingSlot slot) {
     showDialog(
       context: context,
@@ -150,7 +161,8 @@ class _MainBookingPageState extends State<MainBookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final dateKey = DateFormat('yyyy-MM-dd').format(_selectedDate);
+    // Get bookings and check if the date is in the past
+    final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     final slotsForSelectedDate = _bookings[dateKey] ?? [];
     final bookedTimes = slotsForSelectedDate.map((slot) => slot.time).toList();
     final isPastDate = _selectedDate.isBefore(
@@ -162,17 +174,36 @@ class _MainBookingPageState extends State<MainBookingPage> {
         title: Text(widget.selectedSchool),
         actions: [
           IconButton(
+            // Navigate to Search Page
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              final selectedDate = await Navigator.push<DateTime?>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchPage(bookings: _bookings),
+                ),
+              );
+              if (selectedDate != null) {
+                setState(() {
+                  _selectedDate = selectedDate;
+                });
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // Implement logout functionality
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
             },
           ),
         ],
       ),
       body: Column(
         children: [
-          // Updated Date Navigation Row
+          // Date Navigation Card (← Date →)
           Card(
             margin: const EdgeInsets.all(16),
             child: Padding(
@@ -191,7 +222,7 @@ class _MainBookingPageState extends State<MainBookingPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        DateFormat('EEEE, MMMM d').format(_selectedDate),
+                        formatDate(_selectedDate, DateFormatType.longDay),
                         style: TextStyle(
                           fontSize: 18,
                           color: isPastDate ? Colors.grey : Colors.black,
@@ -208,7 +239,7 @@ class _MainBookingPageState extends State<MainBookingPage> {
               ),
             ),
           ),
-          // School info and user email
+          // Driving school info and user email
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -229,7 +260,8 @@ class _MainBookingPageState extends State<MainBookingPage> {
             ),
           ),
           const SizedBox(height: 16),
-          // Time slots grid
+
+          // Slot Grid View
           Expanded(
             child: GridView.count(
               padding: const EdgeInsets.all(16),
@@ -300,6 +332,7 @@ class _MainBookingPageState extends State<MainBookingPage> {
     );
   }
 
+  // Generates time slots between 10:00 AM and 6:00 PM (inclusive)
   List<String> _generateTimeSlots() {
     final slots = <String>[];
     DateTime currentTime = DateTime(
@@ -310,20 +343,13 @@ class _MainBookingPageState extends State<MainBookingPage> {
       0,
     ); // Start at 10:00 AM
 
+    // Keep adding 30-minute intervals until 6:00 PM (inclusive)
     while (currentTime.hour < 18) {
       // Until 6:00 PM
-      slots.add(DateFormat('h:mm a').format(currentTime));
+      slots.add(formatDate(currentTime, DateFormatType.timeOnly));
       currentTime = currentTime.add(const Duration(minutes: 30));
     }
 
     return slots;
   }
-}
-
-class BookingSlot {
-  final String time;
-  final String name;
-  final String phone;
-
-  BookingSlot({required this.time, required this.name, required this.phone});
 }

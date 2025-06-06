@@ -1,50 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const DrivingSchoolApp());
-}
-
-class DrivingSchoolApp extends StatelessWidget {
-  const DrivingSchoolApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Driving School Slot Booking',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.blue,
-          accentColor: Colors.blueAccent,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E88E5),
-          foregroundColor: Colors.white,
-          elevation: 4,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1E88E5),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-      ),
-      home: const LoginPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
+import 'booking_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -77,13 +32,15 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      // Here you would typically call your authentication service
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Login...')),
-      );
-      
-      // Navigate to the main app after successful login
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainBookingPage(
+          selectedSchool: _selectedSchool!,
+          userEmail: _emailController.text,
+        ),
+      ),
+    );
     }
   }
 
@@ -183,12 +140,14 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     const SizedBox(height: 30),
-                    // Login Button
-                    ElevatedButton(
-                      onPressed: _login,
-                      child: const Text(
-                        'LOGIN',
-                        style: TextStyle(fontSize: 18),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _login,
+                        child: const Text(
+                          'LOGIN',
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
