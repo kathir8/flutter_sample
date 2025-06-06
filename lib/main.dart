@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sample/booking_page.dart';
 
 void main() {
   runApp(const DrivingSchoolApp());
@@ -40,7 +41,11 @@ class DrivingSchoolApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginPage(),
+      // home: const LoginPage(),
+      home: const MainBookingPage(
+          selectedSchool: 'Safe Wheels Academy - North Branch',
+          userEmail: 'Kathiravan',
+        ),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -76,10 +81,15 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing Login...')),
-      );
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainApp()));
+      Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainBookingPage(
+          selectedSchool: _selectedSchool!,
+          userEmail: _emailController.text,
+        ),
+      ),
+    );
     }
   }
 
