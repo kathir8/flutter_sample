@@ -232,7 +232,7 @@ class _BookSlotState extends State<BookSlot> {
                           ),
                         ),
                         onPressed: _confirmBooking,
-                        child: const Text('CONFIRM BOOKING'),
+                        child: const Text('BOOK'),
                       ),
                     ],
                   ),
