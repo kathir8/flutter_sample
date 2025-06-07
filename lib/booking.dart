@@ -205,11 +205,6 @@ class _MainBookingState extends State<MainBooking> {
                         ? timeSlots[secondIndex]
                         : null;
 
-                    // Check if selected slot is in this row
-                    final isSelectedInThisRow =
-                        _selectedBookedSlot == firstSlot ||
-                        _selectedBookedSlot == secondSlot;
-
                     final isFirstColumnSelected =
                         _selectedBookedSlot == firstSlot;
                     final isSecondColumnSelected =
@@ -228,8 +223,7 @@ class _MainBookingState extends State<MainBooking> {
                                 slotsForSelectedDate,
                               ),
                             ),
-                            if (secondSlot !=
-                                null) // Second time slot (only if within bounds)
+                            if (secondSlot != null) // Second time slot (only if within bounds)
                               Expanded(
                                 child: _buildTimeSlotCard(
                                   secondSlot,
@@ -241,12 +235,14 @@ class _MainBookingState extends State<MainBooking> {
                         ),
 
                         // Show booked details below the row if a selected slot is in this row
-                        if (_selectedBookedSlot != null && isSelectedInThisRow)
+                        if (_selectedBookedSlot != null && (isFirstColumnSelected || isSecondColumnSelected))
                           CancelSlotWidget(
                             selectedDate: _selectedDate,
                             bookings: _bookings,
                             selectedBookedSlot: _selectedBookedSlot!,
                             onCancel: _cancelBooking,
+                            isFirstColumnSelected: isFirstColumnSelected,
+                            isSecondColumnSelected: isSecondColumnSelected,
                           ),
                       ],
                     );
@@ -352,8 +348,7 @@ class _MainBookingState extends State<MainBooking> {
     );
   }
 
-
-   void _cancelBooking(BookingSlot slot, String time) {
+  void _cancelBooking(BookingSlot slot, String time) {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     setState(() {
       _bookings[dateKey]?.removeWhere(
@@ -369,5 +364,4 @@ class _MainBookingState extends State<MainBooking> {
       ),
     );
   }
-
 }

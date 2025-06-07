@@ -7,6 +7,8 @@ class CancelSlotWidget extends StatelessWidget {
   final Map<String, List<BookingSlot>> bookings;
   final String selectedBookedSlot;
   final Function(BookingSlot, String) onCancel;
+  final bool isFirstColumnSelected;
+  final bool isSecondColumnSelected;
 
   const CancelSlotWidget({
     super.key,
@@ -14,6 +16,8 @@ class CancelSlotWidget extends StatelessWidget {
     required this.bookings,
     required this.selectedBookedSlot,
     required this.onCancel,
+    required this.isFirstColumnSelected,
+    required this.isSecondColumnSelected,
   });
 
   @override
@@ -23,13 +27,28 @@ class CancelSlotWidget extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: CustomPaint(
-                size: const Size(20, 10),
-                painter: TrianglePainter(),
-              ),
+              child: isFirstColumnSelected
+                  ? Center(
+                      child: CustomPaint(
+                        size: const Size(20, 10),
+                        painter: TrianglePainter(),
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+            Expanded(
+              child: isSecondColumnSelected
+                  ? Center(
+                      child: CustomPaint(
+                        size: const Size(20, 10),
+                        painter: TrianglePainter(),
+                      ),
+                    )
+                  : const SizedBox(),
             ),
           ],
         ),
+
         _buildBookedDetails(context, selectedBookedSlot),
       ],
     );
