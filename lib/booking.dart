@@ -4,6 +4,7 @@ import 'login.dart';
 import 'models/date_format_utils.dart';
 import 'search_page.dart';
 import 'models/booking_model.dart';
+import 'cancel_slot.dart';
 
 // Main booking screen widget for a selected driving school
 class MainBooking extends StatefulWidget {
@@ -209,6 +210,11 @@ class _MainBookingState extends State<MainBooking> {
                         _selectedBookedSlot == firstSlot ||
                         _selectedBookedSlot == secondSlot;
 
+                    final isFirstColumnSelected =
+                        _selectedBookedSlot == firstSlot;
+                    final isSecondColumnSelected =
+                        _selectedBookedSlot == secondSlot;
+
                     return Column(
                       children: [
                         Row(
@@ -236,7 +242,12 @@ class _MainBookingState extends State<MainBooking> {
 
                         // Show booked details below the row if a selected slot is in this row
                         if (_selectedBookedSlot != null && isSelectedInThisRow)
-                          _buildBookedDetails(_selectedBookedSlot!),
+                          CancelSlotWidget(
+                            selectedDate: _selectedDate,
+                            bookings: _bookings,
+                            selectedBookedSlot: _selectedBookedSlot!,
+                            onCancel: _cancelBooking,
+                          ),
                       ],
                     );
                   },
@@ -341,79 +352,8 @@ class _MainBookingState extends State<MainBooking> {
     );
   }
 
-  Widget _buildBookedDetails(String time) {
-    final dateKey = formatDate(_selectedDate, DateFormatType.iso);
-    final slotsForDate = _bookings[dateKey] ?? [];
-    final bookedSlot = slotsForDate.firstWhere((slot) => slot.time == time);
 
-    // If slot doesn't exist anymore, return empty container
-    if (bookedSlot.name.isEmpty) {
-      return Container();
-    }
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: Colors.blue[50],
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Customer: ${bookedSlot.name}'),
-                    Text('Phone: ${bookedSlot.phone}'),
-                  ],
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Cancel Booking'),
-                        content: const Text(
-                          'Are you sure you want to cancel this booking?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('No'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              _cancelBooking(bookedSlot, time);
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'Yes',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  child: const Text('Cancel Booking'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _cancelBooking(BookingSlot slot, String time) {
+   void _cancelBooking(BookingSlot slot, String time) {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     setState(() {
       _bookings[dateKey]?.removeWhere(
@@ -429,4 +369,5 @@ class _MainBookingState extends State<MainBooking> {
       ),
     );
   }
+
 }
