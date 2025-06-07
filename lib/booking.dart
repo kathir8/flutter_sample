@@ -109,11 +109,9 @@ class _MainBookingState extends State<MainBooking> {
                   builder: (context) => SearchPage(bookings: _bookings),
                 ),
               );
-              if (selectedDate != null) {
-                setState(() {
-                  _selectedDate = selectedDate;
-                });
-              }
+              setState(() {
+                _selectedBookedSlot = null; // Close any open booking details
+              });
             },
           ),
           IconButton(
@@ -223,7 +221,8 @@ class _MainBookingState extends State<MainBooking> {
                                 slotsForSelectedDate,
                               ),
                             ),
-                            if (secondSlot != null) // Second time slot (only if within bounds)
+                            if (secondSlot !=
+                                null) // Second time slot (only if within bounds)
                               Expanded(
                                 child: _buildTimeSlotCard(
                                   secondSlot,
@@ -235,7 +234,8 @@ class _MainBookingState extends State<MainBooking> {
                         ),
 
                         // Show booked details below the row if a selected slot is in this row
-                        if (_selectedBookedSlot != null && (isFirstColumnSelected || isSecondColumnSelected))
+                        if (_selectedBookedSlot != null &&
+                            (isFirstColumnSelected || isSecondColumnSelected))
                           CancelSlotWidget(
                             selectedDate: _selectedDate,
                             bookings: _bookings,

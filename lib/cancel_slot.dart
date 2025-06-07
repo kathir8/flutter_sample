@@ -124,7 +124,7 @@ class CancelSlotWidget extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Cancel Booking'),
+                        title: const Text('Cancel booking'),
                         content: message,
                         actions: [
                           TextButton(
