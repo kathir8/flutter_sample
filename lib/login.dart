@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'booking_page.dart';
+import 'booking.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => MainBookingPage(
+        builder: (context) => MainBooking(
           selectedSchool: _selectedSchool!,
           userEmail: _emailController.text,
         ),

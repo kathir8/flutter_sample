@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'booking_page.dart';
+import 'booking.dart';
 import 'login.dart';
 
 void main() {
@@ -42,11 +42,11 @@ class DrivingSchoolApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginPage(),
-      // home: const MainBookingPage(
-      //     selectedSchool: 'Safe Wheels Academy - North Branch',
-      //     userEmail: 'Kathiravan',
-      //   ),
+      // home: const LoginPage(),
+      home: const MainBooking(
+          selectedSchool: 'Safe Wheels Academy - North Branch',
+          userEmail: 'Kathiravan',
+        ),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPages> {
       Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => MainBookingPage(
+        builder: (context) => MainBooking(
           selectedSchool: _selectedSchool!,
           userEmail: _emailController.text,
         ),

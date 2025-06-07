@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sample/book_slot.dart';
 import 'login.dart';
 import 'models/date_format_utils.dart';
 import 'search_page.dart';
-import 'models/booking_slot.dart';
+import 'models/booking_model.dart';
 
 // Main booking screen widget for a selected driving school
-class MainBookingPage extends StatefulWidget {
+class MainBooking extends StatefulWidget {
   final String selectedSchool;
   final String userEmail;
 
-  const MainBookingPage({
+  const MainBooking({
     super.key,
     required this.selectedSchool,
     required this.userEmail,
   });
 
   @override
-  State<MainBookingPage> createState() => _MainBookingPageState();
+  State<MainBooking> createState() => _MainBookingState();
 }
 
-class _MainBookingPageState extends State<MainBookingPage> {
+class _MainBookingState extends State<MainBooking> {
   DateTime _selectedDate = DateTime.now();
   final Map<String, List<BookingSlot>> _bookings = {};
   final TextEditingController _nameController = TextEditingController();
@@ -77,63 +78,7 @@ class _MainBookingPageState extends State<MainBookingPage> {
       _selectedDate = _selectedDate.add(Duration(days: days));
     });
   }
-
-  // Handles booking a time slot
-  void _bookSlot(String time) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Book Slot'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Customer Name'),
-            ),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Phone Number'),
-              keyboardType: TextInputType.phone,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Validate input and save the booking
-              if (_nameController.text.isNotEmpty &&
-                  _phoneController.text.isNotEmpty) {
-                setState(() {
-                  final dateKey = formatDate(_selectedDate, DateFormatType.iso);
-                  _bookings.putIfAbsent(dateKey, () => []);
-                  _bookings[dateKey]!.add(
-                    BookingSlot(
-                      time: time,
-                      name: _nameController.text,
-                      phone: _phoneController.text,
-                    ),
-                  );
-                  _nameController.clear();
-                  _phoneController.clear();
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Slot booked successfully!')),
-                );
-              }
-            },
-            child: const Text('Confirm'),
-          ),
-        ],
-      ),
-    );
-  }
-
+ 
   // Displays a dialog showing details of a booked slot
   void _viewBookingDetails(BookingSlot slot) {
     showDialog(
@@ -282,7 +227,16 @@ class _MainBookingPageState extends State<MainBookingPage> {
                     if (isBooked) {
                       _viewBookingDetails(bookedSlot!);
                     } else if (!isPastDate) {
-                      _bookSlot(time);
+                      showDialog(
+                        context: context,
+                        builder: (context) => BookSlot(
+                          initialTime: time,
+                          bookings: _bookings,
+                          selectedDate: _selectedDate,
+                          onBookingSuccess: () => setState(() {}),
+                          allTimeSlots: _generateTimeSlots(),
+                        ),
+                      );
                     }
                   },
                   child: Card(
@@ -345,7 +299,6 @@ class _MainBookingPageState extends State<MainBookingPage> {
 
     // Keep adding 30-minute intervals until 6:00 PM (inclusive)
     while (currentTime.hour < 18) {
-      // Until 6:00 PM
       slots.add(formatDate(currentTime, DateFormatType.timeOnly));
       currentTime = currentTime.add(const Duration(minutes: 30));
     }

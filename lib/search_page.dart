@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models/date_format_utils.dart';
-import 'models/booking_slot.dart';
+import 'models/booking_model.dart';
 
 class SearchPage extends StatefulWidget {
   final Map<String, List<BookingSlot>> bookings;
