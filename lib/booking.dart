@@ -90,9 +90,7 @@ class _MainBookingState extends State<MainBooking> {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     final slotsForSelectedDate = _bookings[dateKey] ?? [];
     final bookedTimes = slotsForSelectedDate.map((slot) => slot.time).toList();
-    final isPastDate = _selectedDate.isBefore(
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-    );
+    final isPastDate = _selectedDate.isBefore(DateTime.now());
     final timeSlots = _generateTimeSlots();
 
     return Scaffold(
@@ -217,8 +215,9 @@ class _MainBookingState extends State<MainBooking> {
                               // First time slot (always present)
                               child: _buildTimeSlotCard(
                                 firstSlot,
-                                bookedTimes,
+                                bookedTimes.contains(firstSlot),
                                 slotsForSelectedDate,
+                                isPastDate
                               ),
                             ),
                             if (secondSlot !=
@@ -226,8 +225,9 @@ class _MainBookingState extends State<MainBooking> {
                               Expanded(
                                 child: _buildTimeSlotCard(
                                   secondSlot,
-                                  bookedTimes,
+                                  bookedTimes.contains(secondSlot),
                                   slotsForSelectedDate,
+                                  isPastDate
                                 ),
                               ),
                           ],
@@ -278,13 +278,10 @@ class _MainBookingState extends State<MainBooking> {
   // Add these helper methods
   Widget _buildTimeSlotCard(
     String time,
-    List<String> bookedTimes,
+    bool isBooked,
     List<BookingSlot> slotsForSelectedDate,
+    bool isPastDate
   ) {
-    final isBooked = bookedTimes.contains(time);
-    final isPastDate = _selectedDate.isBefore(
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
-    );
     final bookedSlot = isBooked
         ? slotsForSelectedDate.firstWhere((slot) => slot.time == time)
         : null;
