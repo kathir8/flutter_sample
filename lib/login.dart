@@ -16,11 +16,11 @@ class _LoginPageState extends State<LoginPage> {
 
   // List of driving schools (you can expand this)
   final List<String> _drivingSchools = [
-    'City Driving School - Downtown',
-    'Safe Wheels Academy - North Branch',
-    'Pro Drivers Institute - East Branch',
-    'Elite Driving School - West Branch',
-    'First Gear Academy - South Branch',
+    'Vishnu Driving School - Alandur ',
+    'Rose Driving School - Chrompet',
+    'Alpha Driving School - Selaiyur',
+    'Green Driving School - Tambaram',
+    'Mohan Driving School - Ashok Nagar',
   ];
 
   @override
@@ -82,11 +82,13 @@ class _LoginPageState extends State<LoginPage> {
                         labelText: 'Select Driving School',
                         prefixIcon: Icon(Icons.school),
                       ),
+                      isExpanded: true,
                       value: _selectedSchool,
                       items: _drivingSchools.map((String school) {
                         return DropdownMenuItem<String>(
                           value: school,
-                          child: Text(school),
+                          child: Text(school,
+                          overflow: TextOverflow.ellipsis),
                         );
                       }).toList(),
                       onChanged: (String? newValue) {
