@@ -237,12 +237,17 @@ class _MainBookingState extends State<MainBooking> {
                         if (_selectedBookedSlot != null &&
                             (isFirstColumnSelected || isSecondColumnSelected))
                           CancelSlotWidget(
-                            selectedDate: _selectedDate,
-                            bookings: _bookings,
-                            selectedBookedSlot: _selectedBookedSlot!,
+                            cancelledDate: formatDate(
+                              _selectedDate,
+                              DateFormatType.iso,
+                            ),
+                            bookedSlot: slotsForSelectedDate.firstWhere(
+                              (slot) => slot.time == _selectedBookedSlot,
+                            ),
                             onCancel: _cancelBooking,
                             isFirstColumnSelected: isFirstColumnSelected,
                             isSecondColumnSelected: isSecondColumnSelected,
+                            isPastDate: isPastDate,
                           ),
                       ],
                     );
@@ -345,18 +350,18 @@ class _MainBookingState extends State<MainBooking> {
     );
   }
 
-  void _cancelBooking(BookingSlot slot, String time) {
+  void _cancelBooking(BookingSlot slot) {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     setState(() {
       _bookings[dateKey]?.removeWhere(
-        (s) => s.time == time && s.name == slot.name && s.phone == slot.phone,
+        (s) => s.time == slot.time && s.name == slot.name && s.phone == slot.phone
       );
       _selectedBookedSlot = null;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Booking for ${slot.name} at $time cancelled'),
+        content: Text('Booking for ${slot.name} at ${slot.time} cancelled'),
         duration: const Duration(seconds: 2),
       ),
     );

@@ -1,41 +1,27 @@
 import 'package:flutter/material.dart';
 import 'models/booking_model.dart';
-import 'models/date_format_utils.dart';
 
 class CancelSlotWidget extends StatelessWidget {
-  final DateTime selectedDate;
-  final Map<String, List<BookingSlot>> bookings;
-  final String selectedBookedSlot;
-  final Function(BookingSlot, String) onCancel;
+  final String cancelledDate;
+  final BookingSlot bookedSlot;
+  final Function(BookingSlot) onCancel;
   final bool isFirstColumnSelected;
   final bool isSecondColumnSelected;
+  final bool isPastDate;
 
   const CancelSlotWidget({
     super.key,
-    required this.selectedDate,
-    required this.bookings,
-    required this.selectedBookedSlot,
+    required this.cancelledDate,
+    required this.bookedSlot,
     required this.onCancel,
     required this.isFirstColumnSelected,
     required this.isSecondColumnSelected,
+    required this.isPastDate,
   });
 
 
   @override
   Widget build(BuildContext context) {
-    // Combine selected date and slot time to create full DateTime
-    final parsedTime = parseDate(selectedBookedSlot, DateFormatType.timeOnly);
-    final slotDateTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      parsedTime.hour,
-      parsedTime.minute,
-    );
-    
-    // Check if the slot is in the future or now
-    final isFutureSlot = slotDateTime.isAfter(DateTime.now());
-
     return Column(
       children: [
         Row(
@@ -45,7 +31,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(isFutureSlot:isFutureSlot),
+                        painter: TrianglePainter(isPastDate:isPastDate),
                       ),
                     )
                   : const SizedBox(),
@@ -55,7 +41,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(isFutureSlot:isFutureSlot),
+                        painter: TrianglePainter(isPastDate:isPastDate),
                       ),
                     )
                   : const SizedBox(),
@@ -63,24 +49,19 @@ class CancelSlotWidget extends StatelessWidget {
           ],
         ),
 
-        _buildBookedDetails(context, selectedBookedSlot, isFutureSlot),
+        _buildBookedDetails(context),
       ],
     );
   }
 
-  Widget _buildBookedDetails(BuildContext context, String time, bool isFutureSlot) {
-
-    final dateKey = formatDate(selectedDate, DateFormatType.iso);
-    final slotsForDate = bookings[dateKey] ?? [];
-    final bookedSlot = slotsForDate.firstWhere((slot) => slot.time == time);
-
+  Widget _buildBookedDetails(BuildContext context) {
     if (bookedSlot.name.isEmpty) {
       return Container();
     }
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      color:  isFutureSlot ? Colors.blue[50] : Colors.grey[200],
+      color:  isPastDate ? Colors.grey[200] : Colors.blue[50],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -95,7 +76,7 @@ class CancelSlotWidget extends StatelessWidget {
                     Text('Phone: ${bookedSlot.phone}'),
                   ],
                 ),
-                if (isFutureSlot)
+                if (!isPastDate)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[400],
@@ -106,10 +87,6 @@ class CancelSlotWidget extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    final formattedDate = formatDate(
-                      selectedDate,
-                      DateFormatType.iso,
-                    );
                     final message = RichText(
                       text: TextSpan(
                         style: DefaultTextStyle.of(context).style,
@@ -124,7 +101,7 @@ class CancelSlotWidget extends StatelessWidget {
                           ),
                           const TextSpan(text: ' on '),
                           TextSpan(
-                            text: formattedDate,
+                            text: cancelledDate,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const TextSpan(text: ' at '),
@@ -149,7 +126,7 @@ class CancelSlotWidget extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              onCancel(bookedSlot, time);
+                              onCancel(bookedSlot);
                               Navigator.pop(context);
                             },
                             child: const Text(
@@ -173,13 +150,13 @@ class CancelSlotWidget extends StatelessWidget {
 }
 
 class TrianglePainter extends CustomPainter {
-  final bool isFutureSlot;
-  TrianglePainter({required this.isFutureSlot});
+  final bool isPastDate;
+  TrianglePainter({required this.isPastDate});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isFutureSlot ? Colors.blue.shade50 : Colors.grey.shade200
+      ..color = isPastDate ? Colors.grey.shade200 : Colors.blue.shade50
       ..style = PaintingStyle.fill;
 
     final path = Path();
