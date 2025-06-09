@@ -103,7 +103,7 @@ class _MainBookingState extends State<MainBooking> {
             // Navigate to Search Page
             icon: const Icon(Icons.search),
             onPressed: () async {
-              final selectedDate = await Navigator.push<DateTime?>(
+              await Navigator.push<DateTime?>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => SearchPage(bookings: _bookings),

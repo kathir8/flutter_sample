@@ -42,11 +42,11 @@ class DrivingSchoolApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginPage(),
-      // home: const MainBooking(
-      //     selectedSchool: 'Safe Wheels Academy - North Branch',
-      //     userEmail: 'Kathiravan',
-      //   ),
+      // home: const LoginPage(),
+      home: const MainBooking(
+          selectedSchool: 'Safe Wheels Academy - North Branch',
+          userEmail: 'Kathiravan',
+        ),
       debugShowCheckedModeBanner: false,
     );
   }

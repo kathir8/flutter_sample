@@ -20,8 +20,22 @@ class CancelSlotWidget extends StatelessWidget {
     required this.isSecondColumnSelected,
   });
 
+
   @override
   Widget build(BuildContext context) {
+    // Combine selected date and slot time to create full DateTime
+    final parsedTime = parseDate(selectedBookedSlot, DateFormatType.timeOnly);
+    final slotDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      parsedTime.hour,
+      parsedTime.minute,
+    );
+    
+    // Check if the slot is in the future or now
+    final isFutureSlot = slotDateTime.isAfter(DateTime.now());
+
     return Column(
       children: [
         Row(
@@ -31,7 +45,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(),
+                        painter: TrianglePainter(isFutureSlot:isFutureSlot),
                       ),
                     )
                   : const SizedBox(),
@@ -41,7 +55,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(),
+                        painter: TrianglePainter(isFutureSlot:isFutureSlot),
                       ),
                     )
                   : const SizedBox(),
@@ -49,12 +63,13 @@ class CancelSlotWidget extends StatelessWidget {
           ],
         ),
 
-        _buildBookedDetails(context, selectedBookedSlot),
+        _buildBookedDetails(context, selectedBookedSlot, isFutureSlot),
       ],
     );
   }
 
-  Widget _buildBookedDetails(BuildContext context, String time) {
+  Widget _buildBookedDetails(BuildContext context, String time, bool isFutureSlot) {
+
     final dateKey = formatDate(selectedDate, DateFormatType.iso);
     final slotsForDate = bookings[dateKey] ?? [];
     final bookedSlot = slotsForDate.firstWhere((slot) => slot.time == time);
@@ -65,7 +80,7 @@ class CancelSlotWidget extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      color: Colors.blue[50],
+      color:  isFutureSlot ? Colors.blue[50] : Colors.grey[200],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -80,6 +95,7 @@ class CancelSlotWidget extends StatelessWidget {
                     Text('Phone: ${bookedSlot.phone}'),
                   ],
                 ),
+                if (isFutureSlot)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[400],
@@ -157,10 +173,13 @@ class CancelSlotWidget extends StatelessWidget {
 }
 
 class TrianglePainter extends CustomPainter {
+  final bool isFutureSlot;
+  TrianglePainter({required this.isFutureSlot});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue.shade50
+      ..color = isFutureSlot ? Colors.blue.shade50 : Colors.grey.shade200
       ..style = PaintingStyle.fill;
 
     final path = Path();

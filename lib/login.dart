@@ -14,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   String? _selectedSchool;
 
-  // List of driving schools (you can expand this)
+  // List of driving schools
   final List<String> _drivingSchools = [
     'Vishnu Driving School - Alandur ',
     'Rose Driving School - Chrompet',

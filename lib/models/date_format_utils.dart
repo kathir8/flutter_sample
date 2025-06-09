@@ -21,3 +21,9 @@ String formatDate(DateTime date, DateFormatType type) {
   final pattern = dateFormatPatterns[type]!;
   return DateFormat(pattern).format(date);
 }
+
+
+DateTime parseDate(String input, DateFormatType type) {
+  final pattern = dateFormatPatterns[type]!;
+  return DateFormat(pattern).parse(input);
+}
