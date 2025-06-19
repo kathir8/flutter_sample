@@ -65,7 +65,7 @@ class _MainBookingState extends State<MainBooking> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now(),
+      firstDate: DateTime(2000),
       lastDate: DateTime.now().add(const Duration(days: 30)),
     );
     if (picked != null && picked != _selectedDate) {
@@ -90,9 +90,8 @@ class _MainBookingState extends State<MainBooking> {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     final slotsForSelectedDate = _bookings[dateKey] ?? [];
     final bookedTimes = slotsForSelectedDate.map((slot) => slot.time).toList();
-    final isPastDate = _selectedDate.isBefore(DateTime.now());
     final timeSlots = _generateTimeSlots();
-
+    final dateDisable = isPastDay(_selectedDate);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.selectedSchool),
@@ -147,7 +146,7 @@ class _MainBookingState extends State<MainBooking> {
                         formatDate(_selectedDate, DateFormatType.longDay),
                         style: TextStyle(
                           fontSize: 18,
-                          color: isPastDate ? Colors.grey : Colors.black,
+                          color: dateDisable ? Colors.grey : Colors.black,
                         ),
                       ),
                     ),
@@ -216,8 +215,7 @@ class _MainBookingState extends State<MainBooking> {
                               child: _buildTimeSlotCard(
                                 firstSlot,
                                 bookedTimes.contains(firstSlot),
-                                slotsForSelectedDate,
-                                isPastDate
+                                slotsForSelectedDate
                               ),
                             ),
                             if (secondSlot !=
@@ -226,8 +224,7 @@ class _MainBookingState extends State<MainBooking> {
                                 child: _buildTimeSlotCard(
                                   secondSlot,
                                   bookedTimes.contains(secondSlot),
-                                  slotsForSelectedDate,
-                                  isPastDate
+                                  slotsForSelectedDate
                                 ),
                               ),
                           ],
@@ -247,7 +244,7 @@ class _MainBookingState extends State<MainBooking> {
                             onCancel: _cancelBooking,
                             isFirstColumnSelected: isFirstColumnSelected,
                             isSecondColumnSelected: isSecondColumnSelected,
-                            isPastDate: isPastDate,
+                            isDisabled : isPastSlot(_selectedDate, _selectedBookedSlot!)
                           ),
                       ],
                     );
@@ -284,20 +281,20 @@ class _MainBookingState extends State<MainBooking> {
   Widget _buildTimeSlotCard(
     String time,
     bool isBooked,
-    List<BookingSlot> slotsForSelectedDate,
-    bool isPastDate
+    List<BookingSlot> slotsForSelectedDate
   ) {
     final bookedSlot = isBooked
         ? slotsForSelectedDate.firstWhere((slot) => slot.time == time)
         : null;
 
+      final isDisabled = isPastSlot(_selectedDate, time);
     return GestureDetector(
       onTap: () {
         if (isBooked) {
           setState(() {
             _selectedBookedSlot = _selectedBookedSlot == time ? null : time;
           });
-        } else if (!isPastDate) {
+        } else if (!isDisabled) {
           setState(() {
             _selectedBookedSlot = null; // Close any open booking details
           });
@@ -315,7 +312,7 @@ class _MainBookingState extends State<MainBooking> {
       },
       child: Card(
         margin: const EdgeInsets.all(8),
-        color: isPastDate
+        color: isDisabled
             ? Colors.grey[200]
             : isBooked
             ? Colors.blue[100]
@@ -329,7 +326,7 @@ class _MainBookingState extends State<MainBooking> {
                 time,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isPastDate
+                  color: isDisabled
                       ? Colors.grey
                       : isBooked
                       ? Colors.blue[800]
@@ -338,7 +335,7 @@ class _MainBookingState extends State<MainBooking> {
               ),
               if (isBooked)
                 Text(bookedSlot!.name, style: const TextStyle(fontSize: 12)),
-              if (isPastDate && !isBooked)
+              if (isDisabled && !isBooked)
                 const Text(
                   'Not available',
                   style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -349,6 +346,7 @@ class _MainBookingState extends State<MainBooking> {
       ),
     );
   }
+
 
   void _cancelBooking(BookingSlot slot) {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);

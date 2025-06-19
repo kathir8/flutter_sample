@@ -7,7 +7,7 @@ class CancelSlotWidget extends StatelessWidget {
   final Function(BookingSlot) onCancel;
   final bool isFirstColumnSelected;
   final bool isSecondColumnSelected;
-  final bool isPastDate;
+  final bool isDisabled;
 
   const CancelSlotWidget({
     super.key,
@@ -16,7 +16,7 @@ class CancelSlotWidget extends StatelessWidget {
     required this.onCancel,
     required this.isFirstColumnSelected,
     required this.isSecondColumnSelected,
-    required this.isPastDate,
+    required this.isDisabled,
   });
 
 
@@ -31,7 +31,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(isPastDate:isPastDate),
+                        painter: TrianglePainter(isDisabled:isDisabled),
                       ),
                     )
                   : const SizedBox(),
@@ -41,7 +41,7 @@ class CancelSlotWidget extends StatelessWidget {
                   ? Center(
                       child: CustomPaint(
                         size: const Size(20, 10),
-                        painter: TrianglePainter(isPastDate:isPastDate),
+                        painter: TrianglePainter(isDisabled:isDisabled),
                       ),
                     )
                   : const SizedBox(),
@@ -61,7 +61,7 @@ class CancelSlotWidget extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      color:  isPastDate ? Colors.grey[200] : Colors.blue[50],
+      color:  isDisabled ? Colors.grey[200] : Colors.blue[50],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -76,7 +76,7 @@ class CancelSlotWidget extends StatelessWidget {
                     Text('Phone: ${bookedSlot.phone}'),
                   ],
                 ),
-                if (!isPastDate)
+                if (!isDisabled)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[400],
@@ -150,13 +150,13 @@ class CancelSlotWidget extends StatelessWidget {
 }
 
 class TrianglePainter extends CustomPainter {
-  final bool isPastDate;
-  TrianglePainter({required this.isPastDate});
+  final bool isDisabled;
+  TrianglePainter({required this.isDisabled});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isPastDate ? Colors.grey.shade200 : Colors.blue.shade50
+      ..color = isDisabled ? Colors.grey.shade200 : Colors.blue.shade50
       ..style = PaintingStyle.fill;
 
     final path = Path();
