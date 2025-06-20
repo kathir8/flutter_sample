@@ -31,25 +31,7 @@ class _MainBookingState extends State<MainBooking> {
   @override
   void initState() {
     super.initState();
-    // Initialize with some sample data
-    _bookings[formatDate(DateTime.now(), DateFormatType.iso)] = [
-      BookingSlot(time: '10:00 AM', name: 'John Doe', phone: '1234567890'),
-      BookingSlot(time: '11:30 AM', name: 'Jane Smith', phone: '9876543210'),
-      BookingSlot(time: '12:00 PM', name: 'Jane Johnson', phone: '5551234567'),
-      BookingSlot(time: '12:30 PM', name: 'Mike Johnson', phone: '5551234567'),
-    ];
-    _bookings[formatDate(
-      DateTime.now().add(const Duration(days: 1)),
-      DateFormatType.iso,
-    )] = [
-      BookingSlot(time: '10:00 AM', name: 'Mike Johnson', phone: '5551234567'),
-    ];
-    _bookings[formatDate(
-      DateTime.now().subtract(const Duration(days: 1)),
-      DateFormatType.iso,
-    )] = [
-      BookingSlot(time: '11:00 AM', name: 'Mike Johnson', phone: '5551234567'),
-    ];
+    fetchData();
   }
 
   @override
@@ -82,6 +64,47 @@ class _MainBookingState extends State<MainBooking> {
       _selectedDate = _selectedDate.add(Duration(days: days));
       _selectedBookedSlot = null; // Close any open booking details
     });
+  }
+
+  Future<void> _refreshData() async {
+    await fetchData();
+  }
+
+  Future<void> fetchData() async {
+    await Future.delayed(Duration(seconds: 1)); // Simulate loading delay
+
+    // Initialize with some sample data
+    _bookings[formatDate(DateTime.now(), DateFormatType.iso)] = [
+      BookingSlot(time: '10:00 AM', name: 'John Doe', phone: '1234567890'),
+      BookingSlot(time: '11:30 AM', name: 'Jane Smith', phone: '9876543210'),
+      BookingSlot(time: '12:00 PM', name: 'Jane Johnson', phone: '5551234567'),
+      BookingSlot(time: '12:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '1:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '2:00 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '2:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '3:00 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '3:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '4:00 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '4:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '5:00 PM', name: 'Mike Johnson', phone: '5551234567'),
+      BookingSlot(time: '5:30 PM', name: 'Mike Johnson', phone: '5551234567'),
+    ];
+
+    _bookings[formatDate(
+      DateTime.now().add(const Duration(days: 1)),
+      DateFormatType.iso,
+    )] = [
+      BookingSlot(time: '10:00 AM', name: 'Mike Johnson', phone: '5551234567'),
+    ];
+
+    _bookings[formatDate(
+      DateTime.now().subtract(const Duration(days: 1)),
+      DateFormatType.iso,
+    )] = [
+      BookingSlot(time: '11:00 AM', name: 'Mike Johnson', phone: '5551234567'),
+    ];
+
+    setState(() {}); // Refresh the UI
   }
 
   @override
@@ -122,138 +145,146 @@ class _MainBookingState extends State<MainBooking> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Date Navigation Card (← Date →)
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Date selector
-                  IconButton(
-                    icon: const Icon(Icons.arrow_left),
-                    onPressed: () => _navigateDate(-1),
-                    iconSize: 32,
-                  ),
-                  InkWell(
-                    onTap: () => _selectDate(context),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        formatDate(_selectedDate, DateFormatType.longDay),
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: dateDisable ? Colors.grey : Colors.black,
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: ListView(
+          physics: AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            // Date Navigation Card (← Date →)
+            Card(
+              margin: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Date selector
+                    IconButton(
+                      icon: const Icon(Icons.arrow_left),
+                      onPressed: () => _navigateDate(-1),
+                      iconSize: 32,
+                    ),
+                    InkWell(
+                      onTap: () => _selectDate(context),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          formatDate(_selectedDate, DateFormatType.longDay),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: dateDisable ? Colors.grey : Colors.black,
+                          ),
                         ),
                       ),
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_right),
+                      onPressed: () => _navigateDate(1),
+                      iconSize: 32,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Driving school info and user email
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.selectedSchool,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_right),
-                    onPressed: () => _navigateDate(1),
-                    iconSize: 32,
+                  Text(
+                    'Logged in as: ${widget.userEmail}',
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
             ),
-          ),
-          // Driving school info and user email
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.selectedSchool,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Logged in as: ${widget.userEmail}',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Time slot Grid View
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                // Generate rows: each row has 2 time slots (columns)
-                children: List.generate(
-                  (timeSlots.length / 2).ceil(), // Number of rows needed
-                  (rowIndex) {
-                    // Calculate the indices of the two time slots for this row
-                    final firstIndex = rowIndex * 2;
-                    final secondIndex = firstIndex + 1;
+            // Time slot Grid View
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  // Generate rows: each row has 2 time slots (columns)
+                  children: List.generate(
+                    (timeSlots.length / 2).ceil(), // Number of rows needed
+                    (rowIndex) {
+                      // Calculate the indices of the two time slots for this row
+                      final firstIndex = rowIndex * 2;
+                      final secondIndex = firstIndex + 1;
 
-                    // Get the first and second time slots (if available)
-                    final firstSlot = timeSlots[firstIndex];
-                    final secondSlot = secondIndex < timeSlots.length
-                        ? timeSlots[secondIndex]
-                        : null;
+                      // Get the first and second time slots (if available)
+                      final firstSlot = timeSlots[firstIndex];
+                      final secondSlot = secondIndex < timeSlots.length
+                          ? timeSlots[secondIndex]
+                          : null;
 
-                    final isFirstColumnSelected =
-                        _selectedBookedSlot == firstSlot;
-                    final isSecondColumnSelected =
-                        _selectedBookedSlot == secondSlot;
+                      final isFirstColumnSelected =
+                          _selectedBookedSlot == firstSlot;
+                      final isSecondColumnSelected =
+                          _selectedBookedSlot == secondSlot;
 
-                    return Column(
-                      children: [
-                        Row(
-                          // Display one row with up to two time slots
-                          children: [
-                            Expanded(
-                              // First time slot (always present)
-                              child: _buildTimeSlotCard(
-                                firstSlot,
-                                bookedTimes.contains(firstSlot),
-                                slotsForSelectedDate
-                              ),
-                            ),
-                            if (secondSlot !=
-                                null) // Second time slot (only if within bounds)
+                      return Column(
+                        children: [
+                          Row(
+                            // Display one row with up to two time slots
+                            children: [
                               Expanded(
+                                // First time slot (always present)
                                 child: _buildTimeSlotCard(
-                                  secondSlot,
-                                  bookedTimes.contains(secondSlot),
-                                  slotsForSelectedDate
+                                  firstSlot,
+                                  bookedTimes.contains(firstSlot),
+                                  slotsForSelectedDate,
                                 ),
                               ),
-                          ],
-                        ),
-
-                        // Show booked details below the row if a selected slot is in this row
-                        if (_selectedBookedSlot != null &&
-                            (isFirstColumnSelected || isSecondColumnSelected))
-                          CancelSlotWidget(
-                            cancelledDate: formatDate(
-                              _selectedDate,
-                              DateFormatType.iso,
-                            ),
-                            bookedSlot: slotsForSelectedDate.firstWhere(
-                              (slot) => slot.time == _selectedBookedSlot,
-                            ),
-                            onCancel: _cancelBooking,
-                            isFirstColumnSelected: isFirstColumnSelected,
-                            isSecondColumnSelected: isSecondColumnSelected,
-                            isDisabled : isPastSlot(_selectedDate, _selectedBookedSlot!)
+                              if (secondSlot !=
+                                  null) // Second time slot (only if within bounds)
+                                Expanded(
+                                  child: _buildTimeSlotCard(
+                                    secondSlot,
+                                    bookedTimes.contains(secondSlot),
+                                    slotsForSelectedDate,
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
-                    );
-                  },
+
+                          // Show booked details below the row if a selected slot is in this row
+                          if (_selectedBookedSlot != null &&
+                              (isFirstColumnSelected || isSecondColumnSelected))
+                            CancelSlotWidget(
+                              cancelledDate: formatDate(
+                                _selectedDate,
+                                DateFormatType.iso,
+                              ),
+                              bookedSlot: slotsForSelectedDate.firstWhere(
+                                (slot) => slot.time == _selectedBookedSlot,
+                              ),
+                              onCancel: _cancelBooking,
+                              isFirstColumnSelected: isFirstColumnSelected,
+                              isSecondColumnSelected: isSecondColumnSelected,
+                              isDisabled: isPastSlot(
+                                _selectedDate,
+                                _selectedBookedSlot!,
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -281,13 +312,13 @@ class _MainBookingState extends State<MainBooking> {
   Widget _buildTimeSlotCard(
     String time,
     bool isBooked,
-    List<BookingSlot> slotsForSelectedDate
+    List<BookingSlot> slotsForSelectedDate,
   ) {
     final bookedSlot = isBooked
         ? slotsForSelectedDate.firstWhere((slot) => slot.time == time)
         : null;
 
-      final isDisabled = isPastSlot(_selectedDate, time);
+    final isDisabled = isPastSlot(_selectedDate, time);
     return GestureDetector(
       onTap: () {
         if (isBooked) {
@@ -347,12 +378,12 @@ class _MainBookingState extends State<MainBooking> {
     );
   }
 
-
   void _cancelBooking(BookingSlot slot) {
     final dateKey = formatDate(_selectedDate, DateFormatType.iso);
     setState(() {
       _bookings[dateKey]?.removeWhere(
-        (s) => s.time == slot.time && s.name == slot.name && s.phone == slot.phone
+        (s) =>
+            s.time == slot.time && s.name == slot.name && s.phone == slot.phone,
       );
       _selectedBookedSlot = null;
     });

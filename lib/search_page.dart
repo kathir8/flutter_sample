@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sample/customer_bookings.dart';
 import 'models/date_format_utils.dart';
 import 'models/booking_model.dart';
 
@@ -147,7 +148,8 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildResultsView() {
     if (_selectedCustomer != null) {
-      return _buildCustomerBookings();
+      // return _buildCustomerBookings();
+      return CustomerBookings(bookings:_customerBookings);
     }
 
     if (_searchController.text.isEmpty) {
